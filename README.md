@@ -101,10 +101,4 @@ mix test
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** – see [LICENSE](LICENSE) for details.
-
----
-
 💡 **Pro Tip:** Consistency is the key. Race daily, track your stats, and watch your WPM soar! 🚀  
