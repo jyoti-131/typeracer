@@ -1,0 +1,267 @@
+<div class="fixed inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 p-4 flex flex-col overflow-auto">
+  <div class="container mx-auto px-6 py-8">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="space-y-2">
+        <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          MULTIPLAYER RACE
+        </h1>
+        <p class="text-slate-300 text-lg font-medium">Compete with friends in real-time typing challenges</p>
+      </div>
+    </div>
+    
+    <!-- Share Room Link -->
+    <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-6 border border-white/10 shadow-2xl mb-8">
+      <div class="text-center space-y-4">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <span class="text-2xl">🔗</span>
+          <h2 class="text-2xl font-bold text-white">Share Race Room</h2>
+        </div>
+        <p class="text-slate-300 font-medium">Share this link with friends to join the race:</p>
+        <div class="flex flex-col lg:flex-row items-center gap-4 max-w-2xl mx-auto">
+          <input 
+            type="text" 
+            value={@shareable_url} 
+            readonly 
+            class="flex-1 bg-slate-700/50 text-white px-4 py-3 rounded-xl border border-slate-600/50 backdrop-blur font-mono text-sm min-w-0"
+          />
+          <button 
+            onclick={"navigator.clipboard.writeText('#{@shareable_url}')"} 
+            class="group inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+            </svg>
+            Copy Link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Players Status -->
+    <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-2xl mb-8">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="text-3xl"></span>
+        <h2 class="text-3xl font-bold text-white">Race Participants</h2>
+      </div>
+      
+      <div class="space-y-4">
+        <!-- Current User -->
+        <div class="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur rounded-2xl p-6 border border-blue-500/30 shadow-lg">
+          <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                👑
+              </div>
+              <div>
+                <div class="text-xl font-bold text-white">You</div>
+                <div class="text-blue-200 text-sm font-medium">Player <%= String.slice(@user_id, 0, 6) %></div>
+              </div>
+            </div>
+            
+            <div class="flex gap-6">
+              <div class="text-center">
+                <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent">
+                  <%= assigns[:wpm] || 0 %>
+                </div>
+                <div class="text-amber-200 text-sm font-medium">WPM</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">
+                  <%= @mistakes %>
+                </div>
+                <div class="text-red-200 text-sm font-medium">Mistakes</div>
+              </div>
+              <div class="text-center">
+                <%= if @finished do %>
+                  <div class="inline-flex items-center gap-2 bg-emerald-500/20 rounded-xl px-4 py-2 border border-emerald-500/30">
+                    <span class="text-2xl">🏆</span>
+                    <span class="text-emerald-300 font-bold">FINISHED!</span>
+                  </div>
+                <% else %>
+                  <div class="inline-flex items-center gap-2 bg-blue-500/20 rounded-xl px-4 py-2 border border-blue-500/30">
+                    <span class="text-2xl">⚡</span>
+                    <span class="text-blue-300 font-medium">Racing...</span>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Progress Bar -->
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-slate-300 font-medium">Progress</span>
+              <span class="text-slate-300 font-medium">
+                <%= round((@current_position / String.length(@typing_text)) * 100) %>%
+              </span>
+            </div>
+            <div class="w-full bg-slate-700/50 rounded-full h-3 overflow-hidden border border-slate-600/50">
+              <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300 shadow-lg" 
+                   style={"width: #{(@current_position / String.length(@typing_text)) * 100}%"}></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Other Players -->
+        <%= for {player_id, player_data} <- @players do %>
+          <div class="bg-gradient-to-r from-slate-700/30 to-slate-800/30 backdrop-blur rounded-2xl p-6 border border-slate-600/30 shadow-lg">
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                  🏃
+                </div>
+                <div>
+                  <div class="text-xl font-bold text-white">Player <%= String.slice(player_id, 0, 6) %></div>
+                  <div class="text-slate-300 text-sm font-medium">Competitor</div>
+                </div>
+              </div>
+              
+              <div class="flex gap-6">
+                <div class="text-center">
+                  <div class="text-2xl font-bold bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent">
+                    <%= player_data.wpm %>
+                  </div>
+                  <div class="text-amber-200 text-sm font-medium">WPM</div>
+                </div>
+                <div class="text-center">
+                  <div class="text-2xl font-bold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">
+                    <%= player_data.mistakes %>
+                  </div>
+                  <div class="text-red-200 text-sm font-medium">Mistakes</div>
+                </div>
+                <div class="text-center">
+                  <%= if player_data.finished do %>
+                    <div class="inline-flex items-center gap-2 bg-emerald-500/20 rounded-xl px-4 py-2 border border-emerald-500/30">
+                      <span class="text-2xl">🏆</span>
+                      <span class="text-emerald-300 font-bold">FINISHED!</span>
+                    </div>
+                  <% else %>
+                    <div class="inline-flex items-center gap-2 bg-orange-500/20 rounded-xl px-4 py-2 border border-orange-500/30">
+                      <span class="text-2xl">⚡</span>
+                      <span class="text-orange-300 font-medium">Racing...</span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-300 font-medium">Progress</span>
+                <span class="text-slate-300 font-medium">
+                  <%= round((player_data.position / String.length(@typing_text)) * 100) %>%
+                </span>
+              </div>
+              <div class="w-full bg-slate-700/50 rounded-full h-3 overflow-hidden border border-slate-600/50">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 h-3 rounded-full transition-all duration-300 shadow-lg" 
+                     style={"width: #{(player_data.position / String.length(@typing_text)) * 100}%"}></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Typing Area -->
+    <div class="max-w-6xl mx-auto space-y-8">
+      <!-- Text Display -->
+      <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-2xl">
+        <div class="text-center mb-6">
+          <h3 class="text-2xl font-bold text-white mb-2">Race Text</h3>
+          <div class="inline-flex items-center gap-2 bg-blue-500/10 rounded-xl px-4 py-2 border border-blue-500/20">
+            <span class="text-slate-300 font-medium">Position:</span>
+            <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+              <%= @current_position %>/<%= String.length(@typing_text) %>
+            </span>
+          </div>
+        </div>
+        
+        <div class="text-2xl leading-relaxed font-mono text-left select-none min-h-[120px] flex-wrap max-w-full break-words whitespace-normal">
+          <%= for {char, index} <- @typing_text |> String.graphemes() |> Enum.with_index() do %>
+            <span class={
+              cond do
+                index < @current_position -> "text-emerald-400 bg-emerald-500/20 rounded-sm px-0.5"
+                index == @current_position -> "text-white bg-blue-500 animate-pulse shadow-lg rounded-sm px-0.5"
+                true -> "text-slate-400"
+              end
+            }><%= if char == " ", do: raw("&nbsp;"), else: char %></span>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-2xl">
+        <div class="text-center mb-6">
+          <h3 class="text-2xl font-bold text-white mb-2">Type Here</h3>
+          <p class="text-slate-300 font-medium">
+            <%= if @finished, do: "🎉 Race completed! Great job!", else: "Type the text above as fast and accurately as possible" %>
+          </p>
+        </div>
+        
+        <div class="max-w-4xl mx-auto space-y-6">
+          <textarea
+            phx-keyup="typing"
+            phx-value-key="input"
+            value={@user_input}
+            placeholder="Start typing here..."
+            class="w-full h-32 bg-slate-700/50 text-white p-6 rounded-2xl border border-slate-600/50 focus:border-blue-500/50 font-mono text-lg resize-none backdrop-blur transition-all duration-200 focus:shadow-lg focus:shadow-blue-500/25"
+            disabled={@finished}
+          ></textarea>
+
+          <!-- Race Status -->
+          <div class="text-center">
+            <%= if @finished do %>
+              <div class="inline-flex items-center gap-3 bg-emerald-500/20 rounded-2xl px-8 py-4 border border-emerald-500/30">
+                <span class="text-3xl">🏁</span>
+                <div class="text-left">
+                  <div class="text-xl font-bold text-emerald-300">Race Finished!</div>
+                  <div class="text-emerald-200 text-sm">Final WPM: <%= assigns[:wpm] || 0 %> | Mistakes: <%= @mistakes %></div>
+                </div>
+              </div>
+            <% else %>
+              <div class="inline-flex items-center gap-3 bg-blue-500/20 rounded-2xl px-8 py-4 border border-blue-500/30">
+                <span class="text-3xl animate-pulse">⚡</span>
+                <div class="text-left">
+                  <div class="text-xl font-bold text-blue-300">Racing in Progress</div>
+                  <div class="text-blue-200 text-sm">Keep typing to maintain your speed!</div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex flex-wrap gap-4 justify-center">
+            <button
+              phx-click="reset_race"
+              class="group inline-flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <span class="text-xl">🔄</span>
+              Reset Race
+            </button>
+            
+            <.link 
+              navigate="/" 
+              class="group inline-flex items-center gap-3 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Back to Menu
+            </.link>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 space-y-2">
+      <p class="text-slate-300 font-medium">🏆 May the fastest typist win!</p>
+      <div class="inline-flex items-center gap-2 bg-purple-500/10 rounded-xl px-4 py-2 border border-purple-500/20">
+        <span class="text-lg">💡</span>
+        <p class="text-slate-400 text-sm">Focus on accuracy to maintain consistent speed in multiplayer races</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,424 @@
+<div class="fixed inset-0 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-950 overflow-auto">
+  <!-- Header Section -->
+  <div class="container mx-auto px-6 py-8">
+    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 mb-8">
+      <div class="space-y-2">
+        <h1 class="text-5xl font-extrabold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+          Your Typing Profile
+        </h1>
+        <p class="text-slate-300 text-lg font-medium">Track your progress and identify areas for improvement</p>
+      </div>
+      <button phx-click="back_to_practice" 
+              class="group inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Practice
+      </button>
+    </div>
+
+    <!-- Profile Summary Card -->
+    <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 mb-8 border border-white/10 shadow-2xl">
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-8">
+        <div class="flex items-center gap-6">
+          <!-- Enhanced Avatar -->
+          <div class={"relative w-20 h-20 bg-gradient-to-br #{get_avatar_color(@user_profile)} rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-2xl ring-4 ring-white/20"}>
+            <%= get_avatar_letters(@user_profile) %>
+            <div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-2xl"></div>
+          </div>
+          
+          <div class="flex-1 min-w-0">
+            <%= if @editing_name do %>
+              <!-- Enhanced Name Editing Mode -->
+              <div class="space-y-3">
+                <form phx-submit="save_username" class="flex items-center gap-3">
+                  <div class="relative flex-1">
+                    <input type="text" 
+                           name="username"
+                           value={@temp_username}
+                           phx-keyup="update_temp_username"
+                           class="w-full bg-slate-800/50 backdrop-blur text-white text-2xl font-bold px-4 py-3 rounded-xl border border-slate-600/50 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30 focus:outline-none transition-all duration-200"
+                           placeholder="Enter your name"
+                           maxlength="50"
+                           autocomplete="off" />
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl pointer-events-none opacity-0 focus-within:opacity-100 transition-opacity duration-200"></div>
+                  </div>
+                  <button type="submit"
+                          class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </button>
+                  <button type="button"
+                          phx-click="cancel_edit_name"
+                          class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            <% else %>
+              <!-- Enhanced Display Mode -->
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <h2 class="text-3xl font-bold text-white truncate"><%= get_display_name(@user_profile) %></h2>
+                  <button phx-click="start_edit_name"
+                          class="group text-slate-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
+                          title="Edit name">
+                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                </div>
+                <p class="text-slate-400 font-medium">Member since <%= format_date(@user_profile.inserted_at) %></p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Enhanced Quick Stats -->
+        <div class="grid grid-cols-3 gap-6 lg:gap-8">
+          <div class="text-center">
+            <div class="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+              <%= @user_profile.total_tests %>
+            </div>
+            <div class="text-emerald-200 text-sm font-medium">Tests Completed</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold bg-gradient-to-r from-amber-400 to-amber-300 bg-clip-text text-transparent">
+              <%= round(@user_profile.average_wpm) %>
+            </div>
+            <div class="text-amber-200 text-sm font-medium">Avg WPM</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+              <%= @user_profile.best_wpm %>
+            </div>
+            <div class="text-blue-200 text-sm font-medium">Best WPM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Tab Navigation -->
+    <div class="bg-white/5 backdrop-blur-lg rounded-3xl mb-8 border border-white/10 shadow-2xl overflow-hidden">
+      <div class="flex border-b border-white/10">
+        <button phx-click="switch_tab" phx-value-tab="overview"
+                class={"relative px-8 py-4 font-semibold transition-all duration-300 #{if @active_tab == :overview, do: "text-blue-400 bg-blue-500/10", else: "text-slate-300 hover:text-white hover:bg-white/5"}"}>
+          <div class="flex items-center gap-3">
+            <span class="text-xl">📈</span>
+            <span>Overview</span>
+          </div>
+          <%= if @active_tab == :overview do %>
+            <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400"></div>
+          <% end %>
+        </button>
+        <button phx-click="switch_tab" phx-value-tab="sessions"
+                class={"relative px-8 py-4 font-semibold transition-all duration-300 #{if @active_tab == :sessions, do: "text-blue-400 bg-blue-500/10", else: "text-slate-300 hover:text-white hover:bg-white/5"}"}>
+          <div class="flex items-center gap-3">
+            <span class="text-xl">📋</span>
+            <span>Recent Sessions</span>
+          </div>
+          <%= if @active_tab == :sessions do %>
+            <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-400 to-purple-400"></div>
+          <% end %>
+        </button>
+      </div>
+
+      <!-- Enhanced Tab Content -->
+      <div class="p-8">
+        <%= if @active_tab == :overview do %>
+          <!-- Enhanced Overview Tab -->
+          <div class="space-y-8">
+            <!-- Main Stat Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              <div class="group bg-gradient-to-br from-emerald-500/10 to-emerald-600/10 backdrop-blur rounded-2xl p-6 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300 hover:scale-105">
+                <div class="text-center space-y-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div class="text-4xl font-bold text-emerald-400"><%= @user_profile.total_tests %></div>
+                  <div class="text-emerald-200 font-medium">Total Tests</div>
+                  <div class="text-xs text-slate-400">Keep practicing!</div>
+                </div>
+              </div>
+
+              <div class="group bg-gradient-to-br from-amber-500/10 to-amber-600/10 backdrop-blur rounded-2xl p-6 border border-amber-500/20 hover:border-amber-500/40 transition-all duration-300 hover:scale-105">
+                <div class="text-center space-y-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                  </div>
+                  <div class="text-4xl font-bold text-amber-400"><%= round(@user_profile.average_wpm) %></div>
+                  <div class="text-amber-200 font-medium">Average WPM</div>
+                  <div class="text-xs text-slate-400">Best: <%= @user_profile.best_wpm %> WPM</div>
+                </div>
+              </div>
+
+              <div class="group bg-gradient-to-br from-purple-500/10 to-purple-600/10 backdrop-blur rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105">
+                <div class="text-center space-y-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  </div>
+                  <div class="text-4xl font-bold text-purple-400"><%= round(@user_profile.average_accuracy) %>%</div>
+                  <div class="text-purple-200 font-medium">Average Accuracy</div>
+                  <div class="text-xs text-slate-400">Best: <%= round(@user_profile.best_accuracy) %>%</div>
+                </div>
+              </div>
+
+              <div class="group bg-gradient-to-br from-blue-500/10 to-blue-600/10 backdrop-blur rounded-2xl p-6 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 hover:scale-105">
+                <div class="text-center space-y-3">
+                  <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                  </div>
+                  <div class="text-4xl font-bold text-blue-400"><%= format_time(@user_profile.total_time_practiced) %></div>
+                  <div class="text-blue-200 font-medium">Time Practiced</div>
+                  <div class="text-xs text-slate-400">Keep it up!</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enhanced Detailed Statistics -->
+            <div class="bg-gradient-to-br from-slate-800/30 to-slate-900/30 backdrop-blur rounded-2xl p-8 border border-white/10">
+              <div class="flex items-center gap-3 mb-6">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <span class="text-xl">📊</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white">Detailed Statistics</h3>
+              </div>
+              
+              <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center space-y-2">
+                  <div class="w-16 h-16 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                  </div>
+                  <div class="text-3xl font-bold text-red-400"><%= @user_profile.total_mistakes %></div>
+                  <div class="text-red-200 font-medium">Total Mistakes</div>
+                </div>
+                
+                <div class="text-center space-y-2">
+                  <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                  </div>
+                  <div class="text-3xl font-bold text-indigo-400"><%= @user_profile.total_keystrokes %></div>
+                  <div class="text-indigo-200 font-medium">Total Keystrokes</div>
+                </div>
+                
+                <div class="text-center space-y-2">
+                  <div class="w-16 h-16 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                  </div>
+                  <% accuracy_rate = if @user_profile.total_keystrokes > 0, do: (@user_profile.total_keystrokes - @user_profile.total_mistakes) / @user_profile.total_keystrokes * 100, else: 0 %>
+                  <div class="text-3xl font-bold text-cyan-400"><%= round(accuracy_rate) %>%</div>
+                  <div class="text-cyan-200 font-medium">Overall Accuracy</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <% else %>
+          <!-- Enhanced Recent Sessions Tab -->
+          <div class="space-y-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <span class="text-xl">📋</span>
+              </div>
+              <h3 class="text-2xl font-bold text-white">Recent Practice Sessions</h3>
+            </div>
+            
+            <%= if Enum.empty?(@recent_sessions) do %>
+              <div class="text-center py-16">
+                <div class="w-24 h-24 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <span class="text-5xl">🎯</span>
+                </div>
+                <div class="text-2xl font-bold text-slate-300 mb-3">No practice sessions yet!</div>
+                <div class="text-slate-400 text-lg">Start practicing to see your progress here.</div>
+              </div>
+            <% else %>
+              <div class="space-y-4">
+                <%= for session <- @recent_sessions do %>
+                  <div class="group bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-[1.02]">
+                    <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                      <div class="space-y-2 flex-1 min-w-0">
+                        <div class="flex items-center gap-3 flex-wrap">
+                          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border border-indigo-500/30">
+                            <%= String.capitalize(session.difficulty) %>
+                          </span>
+                          <span class="text-sm text-slate-400 font-medium">
+                            <%= Calendar.strftime(session.completed_at, "%b %d, %I:%M %p") %>
+                          </span>
+                        </div>
+                        <%= if session.text_content do %>
+                          <div class="text-sm text-slate-400 bg-slate-800/50 rounded-lg p-3 font-mono">
+                            "<%= String.slice(session.text_content, 0, 100) %>..."
+                          </div>
+                        <% end %>
+                      </div>
+                      
+                      <div class="flex gap-6 lg:gap-8">
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-amber-400"><%= session.wpm %></div>
+                          <div class="text-amber-200 text-sm font-medium">WPM</div>
+                        </div>
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-emerald-400"><%= round(session.accuracy) %>%</div>
+                          <div class="text-emerald-200 text-sm font-medium">Accuracy</div>
+                        </div>
+                        <div class="text-center">
+                          <div class="text-2xl font-bold text-red-400"><%= session.mistakes_count %></div>
+                          <div class="text-red-200 text-sm font-medium">Mistakes</div>
+                        </div>
+                        <%= if session.time_taken do %>
+                          <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-400"><%= format_time(session.time_taken) %></div>
+                            <div class="text-blue-200 text-sm font-medium">Time</div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Enhanced Progress Chart Section -->
+    <%= if @progress_data && length(@progress_data) >= 1 do %>
+      <div class="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-2xl">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+            <span class="text-xl">📈</span>
+          </div>
+          <h3 class="text-2xl font-bold text-white">Progress Over Time</h3>
+        </div>
+        
+        <div class="bg-gradient-to-br from-slate-800/30 to-slate-900/30 backdrop-blur rounded-2xl p-8 border border-white/10">
+          <div class="text-center space-y-4">
+            <div class="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-3xl flex items-center justify-center mx-auto">
+              <span class="text-4xl">📊</span>
+            </div>
+            <div class="text-xl font-semibold text-slate-300">Progress Chart Visualization</div>
+            <div class="text-slate-400">Showing daily progress over the last 7 days</div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+/* Enhanced transitions and animations */
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group:hover .group-hover\:scale-110 {
+  transform: scale(1.1);
+}
+
+.group:hover .group-hover\:-translate-x-1 {
+  transform: translateX(-0.25rem);
+}
+
+/* Enhanced focus styles */
+input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Backdrop blur support */
+.backdrop-blur {
+  backdrop-filter: blur(12px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+}
+
+/* Enhanced gradient text */
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.7);
+}
+
+/* Loading states and micro-interactions */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Enhanced button hover effects */
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Card hover effects */
+.group:hover {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive typography */
+@media (max-width: 640px) {
+  .text-5xl {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+  
+  .text-4xl {
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+  
+  .text-3xl {
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+}
+</style>
